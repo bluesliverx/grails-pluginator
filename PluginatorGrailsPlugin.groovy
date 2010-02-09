@@ -1,6 +1,8 @@
+import org.codehaus.groovy.grails.commons.GrailsClassUtils
+
 class PluginatorGrailsPlugin {
     // the plugin version
-    def version = "0.1"
+    def version = "0.1.1"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2.0 > *"
     // the other plugins this plugin depends on
@@ -27,6 +29,14 @@ Just add dependency on this plugin at the last line in your application.properti
 
     def applicationPlugin
 
+    List watchedResources
+
+    PluginatorGrailsPlugin() {
+        if (getApplicationPlugin() && getApplicationPlugin().properties['watchedResources']) {
+            watchedResources = getApplicationPlugin().watchedResources
+        }
+    }
+
     def getApplicationPlugin() {
         if (!applicationPlugin) {
             def basedir = System.getProperty(grails.util.BuildSettings.APP_BASE_DIR)
@@ -39,36 +49,38 @@ Just add dependency on this plugin at the last line in your application.properti
         return applicationPlugin
     }
 
-    def callApplicationPluginAction(actionName, args = []) {
+    def callApplicationPluginAction(actionName, delegate, args = []) {
         if (getApplicationPlugin()) {
-            if (getApplicationPlugin()."$actionName") {
-                getApplicationPlugin()."$actionName".call(*args)
+            if (getApplicationPlugin().properties[actionName]) {
+                def action = getApplicationPlugin()."$actionName"
+                action.setDelegate(delegate);
+                action.call(*args)
             }
         }
     }
 
     def doWithWebDescriptor = { xml ->
-        callApplicationPluginAction 'doWithWebDescriptor', [xml]
+        callApplicationPluginAction 'doWithWebDescriptor', delegate, [xml]
     }
 
     def doWithSpring = {
-        callApplicationPluginAction 'doWithSpring'
+        callApplicationPluginAction 'doWithSpring', delegate
     }
 
     def doWithDynamicMethods = { ctx ->
-        callApplicationPluginAction 'doWithDynamicMethods', [ctx]
+        callApplicationPluginAction 'doWithDynamicMethods', delegate, [ctx]
     }
 
     def doWithApplicationContext = { applicationContext ->
-        callApplicationPluginAction 'doWithApplicationContext', [applicationContext]
+        callApplicationPluginAction 'doWithApplicationContext', delegate, [applicationContext]
     }
 
     def onChange = { event ->
-        callApplicationPluginAction 'onChange', [event]
+        callApplicationPluginAction 'onChange', delegate, [event]
     }
 
     def onConfigChange = { event ->
-        callApplicationPluginAction 'onConfigChange', [event]
+        callApplicationPluginAction 'onConfigChange', delegate, [event]
     }
 
 }

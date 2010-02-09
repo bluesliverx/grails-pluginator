@@ -1,4 +1,4 @@
-<plugin name='pluginator' version='0.1' grailsVersion='1.2.0 &gt; *'>
+<plugin name='pluginator' version='0.1.1' grailsVersion='1.2.0 &gt; *'>
   <author>Sergey Bondarenko</author>
   <authorEmail>enterit@gmail.com</authorEmail>
   <title>This plugin adds ability to hook into application's runtime configuration like if it is a plugin by itself.</title>
@@ -10,11 +10,7 @@ For instance, with doWithSpring you can adjust your web-xml if you need precise 
 Just add dependency on this plugin at the last line in your application.properties.
 </description>
   <documentation>http://grails.org/plugin/pluginator</documentation>
-  <resources>
-    <resource>BuildConfig</resource>
-    <resource>DataSource</resource>
-    <resource>UrlMappings</resource>
-  </resources>
+  <resources />
   <dependencies>
     <resolvers>
       <resolver type='grailsPlugins' name='grailsPlugins' />
