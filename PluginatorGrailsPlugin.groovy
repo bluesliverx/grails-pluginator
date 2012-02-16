@@ -2,7 +2,7 @@ import org.codehaus.groovy.grails.commons.GrailsClassUtils
 
 class PluginatorGrailsPlugin {
     // the plugin version
-    def version = "0.1.1"
+    def version = "0.2.0-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2.0 > *"
     // the other plugins this plugin depends on
@@ -15,25 +15,44 @@ class PluginatorGrailsPlugin {
     // TODO Fill in these fields
     def author = "Sergey Bondarenko"
     def authorEmail = "enterit@gmail.com"
-    def title = "This plugin adds ability to hook into application's runtime configuration like if it is a plugin by itself."
-    def description = '''\\
-Plaginator allows to write the following configuration hooks in application:
-doWithWebDescriptor, doWithSpring, doWithDynamicMethods, doWithApplicationContext, onChange, onConfigChange
+    def title = "Application as a Plugin"
+    def description = '''\
+This plugin adds the ability to hook into an application's runtime configuration as if it were a plugin,
+including all hooks and code that is available in a plugin descriptor file.
+
+Pluginator allows to write the following configuration hooks in an application:
+doWithWebDescriptor, doWithSpring, doWithDynamicMethods, doWithApplicationContext, onChange, and onConfigChange.
 
 For instance, with doWithSpring you can adjust your web-xml if you need precise control over web-xml generation.
-Just add dependency on this plugin at the last line in your application.properties.
+
+You can also declare loadAfter, observe, watchedResources, and custom artefacts.
 '''
 
     // URL to the plugin's documentation
     def documentation = "http://grails.org/plugin/pluginator"
 
+    // License: one of 'APACHE', 'GPL2', 'GPL3'
+    def license = "LGPL"
+    // Any additional developers beyond the author specified above.
+    def developers = [ [ name: "Brian Saville", email: "bksaville@gmail.com" ]]
+    // Location of the plugin's issue tracker.
+    def issueManagement = [ system: "GitHub", url: "https://github.com/bluesliverx/grails-pluginator/issues" ]
+    // Online location of the plugin's browseable source code.
+    def scm = [ url: "https://github.com/bluesliverx/grails-pluginator" ]
+
     def applicationPlugin
 
     List watchedResources
+	List loadAfter
+	List observe
+	List artefacts
 
     PluginatorGrailsPlugin() {
         if (getApplicationPlugin() && getApplicationPlugin().properties['watchedResources']) {
             watchedResources = getApplicationPlugin().watchedResources
+			loadAfter = getApplicationPlugin().loadAfter
+			observe = getApplicationPlugin().observe
+			artefacts = getApplicationPlugin().artefacts
         }
     }
 
