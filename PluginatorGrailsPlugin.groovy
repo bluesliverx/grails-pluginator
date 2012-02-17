@@ -1,105 +1,109 @@
-import org.codehaus.groovy.grails.commons.GrailsClassUtils
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+import grails.util.BuildSettings
 
 class PluginatorGrailsPlugin {
-    // the plugin version
-    def version = "0.2.0-SNAPSHOT"
-    // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "1.2.0 > *"
-    // the other plugins this plugin depends on
-    def dependsOn = [:]
-    // resources that are excluded from plugin packaging
-    def pluginExcludes = [
-            "grails-app/views/error.gsp"
-    ]
+	def version = '0.2'
+	def grailsVersion = '1.3 > *'
+	def author = 'Sergey Bondarenko'
+	def authorEmail = 'enterit@gmail.com'
+	def title = 'Pluginator'
+	def description = 'This plugin lets you define callbacks and properties in an application that are normally only available in plugins, e.g. doWithWebDescriptor, doWithDynamicMethods, loadAfter, observe, etc.'
+	def documentation = 'http://grails.org/plugin/pluginator'
+	def license = 'GPL3'
+//	def issueManagement = [system: 'JIRA', url: 'http://jira.grails.org/browse/???']
+	def scm = [url: 'https://github.com/bluesliverx/grails-pluginator']
+	def developers = [
+		[name: 'Brian Saville', email: 'bksaville@gmail.com'],
+		[name: 'Burt Beckwith', email: 'beckwithb@vmware.com']
+	]
 
-    // TODO Fill in these fields
-    def author = "Sergey Bondarenko"
-    def authorEmail = "enterit@gmail.com"
-    def title = "Application as a Plugin"
-    def description = '''\
-This plugin enables a typical Grails application to tie into the additional hooks and configuration available
-to Grails plugins.  It does this by using grails-app/conf/ApplicationPlugin.groovy as a plugin definition file,
-allowing the following hooks and configuration properties:
+	private Logger log = LoggerFactory.getLogger('grails.plugin.pluginator.PluginatorGrailsPlugin')
+	private applicationPlugin
 
-Hooks: doWithWebDescriptor, doWithSpring, doWithDynamicMethods, doWithApplicationContext, onChange, and onConfigChange.
-Properties: loadAfter, observe, watchedResources, and artefacts.
+	def artefacts = []
+	def evict = []
+	def loadAfter = []
+	def loadBefore = []
+	def observe = []
+	def providedArtefacts = []
+	def watchedResources = []
 
-For instance, with doWithSpring you can adjust your web-xml if you need precise control over web-xml generation.
-You can also declare which other plugins the "plugin" should be loaded after with loadAfter.
-'''
+	PluginatorGrailsPlugin() {
+		initApplicationPlugin()
+		if (!applicationPlugin) return
 
-    // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/pluginator"
+		for (String name in ['artefacts', 'evict', 'loadAfter', 'loadBefore',
+		                     'observe', 'providedArtefacts', 'watchedResources']) {
+			if (applicationPlugin.properties[name]) {
+				def value = applicationPlugin."$name"
+				if (log.isDebugEnabled()) {
+					log.debug "Setting '$name' value -> '$value'"
+				}
+				this."$name" = value
+			}
+		}
+	}
 
-    // License: one of 'APACHE', 'GPL2', 'GPL3'
-    def license = "LGPL"
-    // Any additional developers beyond the author specified above.
-    def developers = [ [ name: "Brian Saville", email: "bksaville@gmail.com" ]]
-    // Location of the plugin's issue tracker.
-    def issueManagement = [ system: "GitHub", url: "https://github.com/bluesliverx/grails-pluginator/issues" ]
-    // Online location of the plugin's browseable source code.
-    def scm = [ url: "https://github.com/bluesliverx/grails-pluginator" ]
+	def doWithWebDescriptor = { xml ->
+		callApplicationPluginAction 'doWithWebDescriptor', delegate, [xml]
+	}
 
-    def applicationPlugin
+	def doWithSpring = {
+		callApplicationPluginAction 'doWithSpring', delegate
+	}
 
-    List watchedResources
-	List loadAfter
-	List observe
-	List artefacts
+	def doWithDynamicMethods = { ctx ->
+		callApplicationPluginAction 'doWithDynamicMethods', delegate, [ctx]
+	}
 
-    PluginatorGrailsPlugin() {
-        if (getApplicationPlugin() && getApplicationPlugin().properties['watchedResources']) {
-            watchedResources = getApplicationPlugin().watchedResources
-			loadAfter = getApplicationPlugin().loadAfter
-			observe = getApplicationPlugin().observe
-			artefacts = getApplicationPlugin().artefacts
-        }
-    }
+	def doWithApplicationContext = { ctx ->
+		callApplicationPluginAction 'doWithApplicationContext', delegate, [ctx]
+	}
 
-    def getApplicationPlugin() {
-        if (!applicationPlugin) {
-            def basedir = System.getProperty(grails.util.BuildSettings.APP_BASE_DIR)
-            def applicationPluginFile = new File("$basedir/grails-app/conf/ApplicationPlugin.groovy")
-            if (applicationPluginFile.exists()) {
-                def loader = new GroovyClassLoader(getClass().getClassLoader())
-                applicationPlugin = loader.parseClass(applicationPluginFile).newInstance()
-            }
-        }
-        return applicationPlugin
-    }
+	def onChange = { event ->
+		callApplicationPluginAction 'onChange', delegate, [event]
+	}
 
-    def callApplicationPluginAction(actionName, delegate, args = []) {
-        if (getApplicationPlugin()) {
-            if (getApplicationPlugin().properties[actionName]) {
-                def action = getApplicationPlugin()."$actionName"
-                action.setDelegate(delegate);
-                action.call(*args)
-            }
-        }
-    }
+	def onConfigChange = { event ->
+		callApplicationPluginAction 'onConfigChange', delegate, [event]
+	}
 
-    def doWithWebDescriptor = { xml ->
-        callApplicationPluginAction 'doWithWebDescriptor', delegate, [xml]
-    }
+	def onShutdown = { event ->
+		callApplicationPluginAction 'onShutdown', delegate, [event]
+	}
 
-    def doWithSpring = {
-        callApplicationPluginAction 'doWithSpring', delegate
-    }
+	private void initApplicationPlugin() {
+		if (applicationPlugin) {
+			return
+		}
 
-    def doWithDynamicMethods = { ctx ->
-        callApplicationPluginAction 'doWithDynamicMethods', delegate, [ctx]
-    }
+		def basedir = System.getProperty(BuildSettings.APP_BASE_DIR)
+		def applicationPluginFile = new File(basedir, 'grails-app/conf/ApplicationPlugin.groovy')
+		if (applicationPluginFile.exists()) {
+			def loader = new GroovyClassLoader(getClass().getClassLoader())
+			applicationPlugin = loader.parseClass(applicationPluginFile).newInstance()
+		}
+	}
 
-    def doWithApplicationContext = { applicationContext ->
-        callApplicationPluginAction 'doWithApplicationContext', delegate, [applicationContext]
-    }
+	private callApplicationPluginAction(String actionName, delegate, args = []) {
+		initApplicationPlugin()
+		if (!applicationPlugin) return
 
-    def onChange = { event ->
-        callApplicationPluginAction 'onChange', delegate, [event]
-    }
+		if (!(applicationPlugin.properties[actionName] instanceof Closure)) {
+			return
+		}
 
-    def onConfigChange = { event ->
-        callApplicationPluginAction 'onConfigChange', delegate, [event]
-    }
+		if (log.isTraceEnabled()) {
+			log.trace "Calling '$actionName' with args $args"
+		}
+		else if (log.isDebugEnabled()) {
+			log.debug "Calling '$actionName'"
+		}
 
+		Closure action = applicationPlugin."$actionName"
+		action.delegate = delegate
+		action.call(*args)
+	}
 }
