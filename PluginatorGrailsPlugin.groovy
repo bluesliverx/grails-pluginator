@@ -17,15 +17,15 @@ class PluginatorGrailsPlugin {
     def authorEmail = "enterit@gmail.com"
     def title = "Application as a Plugin"
     def description = '''\
-This plugin adds the ability to hook into an application's runtime configuration as if it were a plugin,
-including all hooks and code that is available in a plugin descriptor file.
+This plugin enables a typical Grails application to tie into the additional hooks and configuration available
+to Grails plugins.  It does this by using grails-app/conf/ApplicationPlugin.groovy as a plugin definition file,
+allowing the following hooks and configuration properties:
 
-Pluginator allows to write the following configuration hooks in an application:
-doWithWebDescriptor, doWithSpring, doWithDynamicMethods, doWithApplicationContext, onChange, and onConfigChange.
+Hooks: doWithWebDescriptor, doWithSpring, doWithDynamicMethods, doWithApplicationContext, onChange, and onConfigChange.
+Properties: loadAfter, observe, watchedResources, and artefacts.
 
 For instance, with doWithSpring you can adjust your web-xml if you need precise control over web-xml generation.
-
-You can also declare loadAfter, observe, watchedResources, and custom artefacts.
+You can also declare which other plugins the "plugin" should be loaded after with loadAfter.
 '''
 
     // URL to the plugin's documentation
