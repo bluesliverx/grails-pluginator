@@ -6,3 +6,4 @@ eclipse
 /target
 *.xml
 *.zip
+target-eclipse
