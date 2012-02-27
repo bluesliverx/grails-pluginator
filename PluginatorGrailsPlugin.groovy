@@ -4,14 +4,15 @@ import org.slf4j.LoggerFactory
 import grails.util.BuildSettings
 
 class PluginatorGrailsPlugin {
-	def version = '0.2'
+	def version = '0.2.1'
 	def grailsVersion = '1.3 > *'
 	def author = 'Sergey Bondarenko'
 	def authorEmail = 'enterit@gmail.com'
 	def title = 'Pluginator'
 	def description = 'This plugin lets you define callbacks and properties in an application that are normally only available in plugins, e.g. doWithWebDescriptor, doWithDynamicMethods, loadAfter, observe, etc.'
 	def documentation = 'http://grails.org/plugin/pluginator'
-	def license = 'GPL3'
+	def license = 'LGPL'
+	def issueManagement = [system: 'GitHub', url: 'http://github.com/bluesliverx/grails-pluginator/issues']
 //	def issueManagement = [system: 'JIRA', url: 'http://jira.grails.org/browse/???']
 	def scm = [url: 'https://github.com/bluesliverx/grails-pluginator']
 	def developers = [
