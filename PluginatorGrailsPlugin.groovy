@@ -4,7 +4,7 @@ import org.slf4j.LoggerFactory
 import grails.util.BuildSettings
 
 class PluginatorGrailsPlugin {
-	def version = '0.2.1'
+	def version = '0.2.2'
 	def grailsVersion = '1.3 > *'
 	def author = 'Sergey Bondarenko'
 	def authorEmail = 'enterit@gmail.com'
@@ -80,12 +80,9 @@ class PluginatorGrailsPlugin {
 			return
 		}
 
-		def basedir = System.getProperty(BuildSettings.APP_BASE_DIR)
-		def applicationPluginFile = new File(basedir, 'grails-app/conf/ApplicationPlugin.groovy')
-		if (applicationPluginFile.exists()) {
-			def loader = new GroovyClassLoader(getClass().getClassLoader())
-			applicationPlugin = loader.parseClass(applicationPluginFile).newInstance()
-		}
+		try {
+			applicationPlugin = Class.forName("ApplicationPlugin", true, getClass().getClassLoader())?.newInstance()
+		} catch(ClassNotFoundException e) {}
 	}
 
 	private callApplicationPluginAction(String actionName, delegate, args = []) {
