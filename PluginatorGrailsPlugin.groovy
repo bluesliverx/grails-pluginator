@@ -5,7 +5,7 @@ import grails.util.BuildSettings
 
 class PluginatorGrailsPlugin {
 	def version = '0.2.2'
-	def grailsVersion = '1.3 > *'
+	def grailsVersion = '2.0 > *'
 	def author = 'Sergey Bondarenko'
 	def authorEmail = 'enterit@gmail.com'
 	def title = 'Pluginator'
@@ -13,11 +13,10 @@ class PluginatorGrailsPlugin {
 	def documentation = 'http://grails.org/plugin/pluginator'
 	def license = 'LGPL'
 	def issueManagement = [system: 'GitHub', url: 'http://github.com/bluesliverx/grails-pluginator/issues']
-//	def issueManagement = [system: 'JIRA', url: 'http://jira.grails.org/browse/???']
 	def scm = [url: 'https://github.com/bluesliverx/grails-pluginator']
 	def developers = [
 		[name: 'Brian Saville', email: 'bksaville@gmail.com'],
-		[name: 'Burt Beckwith', email: 'beckwithb@vmware.com']
+		[name: 'Burt Beckwith', email: 'burt@burtbeckwith.com']
 	]
 
 	private Logger log = LoggerFactory.getLogger('grails.plugin.pluginator.PluginatorGrailsPlugin')
@@ -39,7 +38,7 @@ class PluginatorGrailsPlugin {
 		                     'observe', 'providedArtefacts', 'watchedResources']) {
 			if (applicationPlugin.properties[name]) {
 				def value = applicationPlugin."$name"
-				if (log.isDebugEnabled()) {
+				if (log.debugEnabled) {
 					log.debug "Setting '$name' value -> '$value'"
 				}
 				this."$name" = value
@@ -81,7 +80,7 @@ class PluginatorGrailsPlugin {
 		}
 
 		try {
-			applicationPlugin = Class.forName("ApplicationPlugin", true, getClass().getClassLoader())?.newInstance()
+			applicationPlugin = Class.forName("ApplicationPlugin", true, getClass().classLoader)?.newInstance()
 		} catch(ClassNotFoundException e) {}
 	}
 
@@ -93,10 +92,10 @@ class PluginatorGrailsPlugin {
 			return
 		}
 
-		if (log.isTraceEnabled()) {
+		if (log.traceEnabled) {
 			log.trace "Calling '$actionName' with args $args"
 		}
-		else if (log.isDebugEnabled()) {
+		else if (log.debugEnabled) {
 			log.debug "Calling '$actionName'"
 		}
 

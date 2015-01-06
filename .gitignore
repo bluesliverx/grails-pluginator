@@ -1,9 +1,9 @@
 *.iws
-.settings
-eclipse
 *.log
-/web-app
+/.settings
 /target
-*.xml
-*.zip
-target-eclipse
+/target-eclipse
+/grails-pluginator-*.zip
+/grails-pluginator-*.zip.sha1
+/plugin.xml
+/web-app
